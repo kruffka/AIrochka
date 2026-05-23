@@ -16,17 +16,27 @@ import wave
 import pyaudio
 import re
 import markdown
+# import torch
+# import soundfile as sf
+# import os
+# import uuid
+# from datetime import datetime
 
 print("=" * 50)
 print("ИИрочка 🤖💅")
 print("=" * 50)
 
-CHAD_API_KEY = '' # Вставьте свой ключ
-if CHAD_API_KEY == '':
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+# Получаем ключ из окружения
+AIROCHKA_API_KEY = os.getenv("AIROCHKA_API_KEY")
+if AIROCHKA_API_KEY == '':
     print("Go get your API key at https://ask.chadgpt.ru")
     exit(1)
 
-API_URL = "https://ask.chadgpt.ru/api/public/gpt-4o-mini"
+API_URL = os.getenv("AIROCHKA_API_URL")
 
 DB_FILE = "chat_history.db"
 AUDIO_QUEUE = queue.Queue()
@@ -208,11 +218,7 @@ class ChatWithMemory:
             error_msg = f"❌ Ошибка запроса: {str(e)}"
             return error_msg, None
 
-import torch
-import soundfile as sf
-import os
-import uuid
-from datetime import datetime
+
 
 def generate_speech_silero(text, speaker='xenia'):
     """Генерация речи через Silero TTS v5"""
@@ -334,7 +340,7 @@ def index():
 
 @app.route('/api/status', methods=['GET'])
 def api_status():
-    return jsonify({'connected': CHAD_API_KEY != '', 'chats_count': len(db_manager.get_all_chats()), 'voices_available': list(VOICES.keys())})
+    return jsonify({'connected': AIROCHKA_API_KEY != '', 'chats_count': len(db_manager.get_all_chats()), 'voices_available': list(VOICES.keys())})
 
 @app.route('/api/chats', methods=['GET'])
 def get_chats():
@@ -447,11 +453,11 @@ def serve_audio(filename):
 
 def main():
     global chat_manager, voice_recorder
-    if CHAD_API_KEY == '':
-        print("⚠️ Вставьте ваш API ключ Chad AI в переменную CHAD_API_KEY")
+    if AIROCHKA_API_KEY == '':
+        print("⚠️ Вставьте ваш API ключ Chad AI в переменную AIROCHKA_API_KEY")
         return
     try:
-        test_req = {"message": "Привет", "api_key": CHAD_API_KEY}
+        test_req = {"message": "Привет", "api_key": AIROCHKA_API_KEY}
         resp = requests.post(API_URL, json=test_req, timeout=10)
         if resp.status_code == 200 and resp.json().get('is_success'):
             print("✅ API ключ действителен")
@@ -463,7 +469,7 @@ def main():
         return
 
     voice_recorder = VoiceRecorder()
-    chat_manager = ChatWithMemory(CHAD_API_KEY, db_manager)
+    chat_manager = ChatWithMemory(AIROCHKA_API_KEY, db_manager)
     audio_thread = threading.Thread(target=audio_player_worker, daemon=True)
     audio_thread.start()
     print(f"📊 Загружено чатов: {len(db_manager.get_all_chats())}")

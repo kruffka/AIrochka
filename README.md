@@ -22,6 +22,8 @@
 Что-то из этого надо поставить:
 
 ```bash
+sudo apt update
+sudo apt install libasound-dev portaudio19-dev python3-dev
 pip install requests flask pyaudio SpeechRecognition edge-tts playsound markdown
 ```
 
